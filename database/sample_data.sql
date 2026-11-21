@@ -1,10 +1,10 @@
 USE nacos_evoting;
 -- Optional sample dataset. Import only into a fresh/test installation.
 -- Demo student credentials: student1@nacos.test / NacosDemo2026!
-INSERT IGNORE INTO users(full_name,email,matric_no,password_hash,role,department,level,is_verified) VALUES
-('Ada Okafor','student1@nacos.test','CSC/2023/001','$2y$10$2kzob.yv69oaiRJ6Pqzxv.I0FVbvXuZKUZ2dAXDZeKS794JNo5tbW','student','Computer Science','300',1),
-('Tunde Bello','student2@nacos.test','CSC/2023/002','$2y$10$2kzob.yv69oaiRJ6Pqzxv.I0FVbvXuZKUZ2dAXDZeKS794JNo5tbW','student','Computer Science','300',1),
-('Zainab Musa','student3@nacos.test','CSC/2023/003','$2y$10$2kzob.yv69oaiRJ6Pqzxv.I0FVbvXuZKUZ2dAXDZeKS794JNo5tbW','student','Software Engineering','200',1);
+INSERT IGNORE INTO users(full_name,email,matric_no,password_hash,role,department,level,is_verified,email_verified_at) VALUES
+('Ada Okafor','student1@nacos.test','CSC/2023/001','$2y$10$2kzob.yv69oaiRJ6Pqzxv.I0FVbvXuZKUZ2dAXDZeKS794JNo5tbW','student','Computer Science','300',1,NOW()),
+('Tunde Bello','student2@nacos.test','CSC/2023/002','$2y$10$2kzob.yv69oaiRJ6Pqzxv.I0FVbvXuZKUZ2dAXDZeKS794JNo5tbW','student','Computer Science','300',1,NOW()),
+('Zainab Musa','student3@nacos.test','CSC/2023/003','$2y$10$2kzob.yv69oaiRJ6Pqzxv.I0FVbvXuZKUZ2dAXDZeKS794JNo5tbW','student','Software Engineering','200',1,NOW());
 INSERT INTO elections(title,description,starts_at,ends_at,status,created_by)
 SELECT 'NACOS Chapter Election (Sample)','Sample election for testing the complete voting workflow.',DATE_SUB(NOW(),INTERVAL 1 DAY),DATE_ADD(NOW(),INTERVAL 30 DAY),'open',id FROM users WHERE role='admin' ORDER BY id LIMIT 1;
 SET @eid=LAST_INSERT_ID();
