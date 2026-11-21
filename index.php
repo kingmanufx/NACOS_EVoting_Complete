@@ -58,9 +58,7 @@ case 'apply-candidate':
 case 'review-candidate':
  require_role(['admin']);$candidateId=(int)($_POST['candidate_id']??0);$decision=$_POST['decision']??'';$note=trim($_POST['review_note']??'');
  if(!in_array($decision,['approved','declined'],true)||strlen($note)>500||($decision==='declined'&&$note===''))throw new RuntimeException('Choose a valid decision and provide a reason when declining.');
- $pdo=db();$q=$pdo->prepare("SELECT c.id,e.status,e.starts_at FROM candidates c JOIN positions p ON p.id=c.position_id JOIN elections e ON e.id=p.election_id WHERE c.id=? AND c.approval_status='pending' FOR UPDATE");$q->execute([$candidateId]);$candidate=$q->fetch();
- if(!$candidate||!in_array($candidate['status'],['draft','scheduled'],true)||strtotime($candidate['starts_at'])<=time())throw new RuntimeException('This application is no longer available for review.');
- $s=$pdo->prepare("UPDATE candidates SET approval_status=?,reviewed_by=?,reviewed_at=NOW(),review_note=? WHERE id=? AND approval_status='pending'");$s->execute([$decision,user()['id'],$note?:null,$candidateId]);
+ $pdo=db();$s=$pdo->prepare("UPDATE candidates c JOIN positions p ON p.id=c.position_id JOIN elections e ON e.id=p.election_id SET c.approval_status=?,c.reviewed_by=?,c.reviewed_at=NOW(),c.review_note=? WHERE c.id=? AND c.approval_status='pending' AND e.status IN ('draft','scheduled') AND e.starts_at>NOW()");$s->execute([$decision,user()['id'],$note?:null,$candidateId]);
  if($s->rowCount()!==1)throw new RuntimeException('This application has already been reviewed.');
  audit('candidate_application_'.$decision,'Candidate #'.$candidateId.($note!==''?'; note: '.$note:''));flash('success','Candidate application '.($decision==='approved'?'approved':'declined').'.');redirect('index.php?page=candidate-review');
 case 'change-status':

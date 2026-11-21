@@ -27,8 +27,13 @@ Alternatively, import `database/schema.sql` through phpMyAdmin. Then create the 
 3. Open **Positions** for that election, add each office, then add candidates and optional JPG/PNG/WEBP photos (max 2 MB) and manifestos.
 4. Students register using their email and matriculation number. Registration does not automatically grant voting rights.
 5. An administrator or electoral officer verifies each eligible student from the voter list in Management.
-6. Set the election status to **open** when ready. The ballot page also checks the actual start/end time. Set it to **closed** after voting ends.
-7. View results and print the reports. Student-facing results are available only after the election is closed.
+6. Verified students can submit a candidate application and manifesto from **Candidate applications**. An administrator approves or declines each application from **Candidate review**; a reason is required for a decline. Students can see their decision and may reapply after a decline.
+7. Add any remaining candidates and positions, review all applications, then set the election status to **open**. The system prevents opening an election if a position has no approved candidate or candidate applications are still pending. Ballots include only approved candidates and also enforce the actual election start/end time.
+8. Set the election to **closed** after voting ends, then view results and print or export reports. Student-facing results are available only after the election is closed.
+
+### Updating an existing installation
+
+The candidate-review feature adds fields and indexes to the `candidates` table only; it does not change user accounts, passwords, or login behavior. Before using this feature on an existing installation, back up the database and run `database/migrate_candidate_approval.sql` once in phpMyAdmin with `nacos_evoting` selected. Existing candidates are treated as approved so current elections keep their candidate list. New student applications start as pending.
 
 ## Default account
 
@@ -40,8 +45,9 @@ There is no hard-coded universal administrator password. The first admin account
 - PDO prepared statements with emulated prepares disabled.
 - CSRF token validation on all POST requests.
 - Session ID rotation after successful login; HttpOnly and SameSite=Lax session cookies.
-- Role checks on privileged routes.
+- Role checks on privileged routes; only administrators can approve or decline candidate applications.
 - Matric-number uniqueness and voter verification before voting.
+- Candidate eligibility review before ballots open; only approved candidates can appear on ballots and results.
 - A unique database constraint on `(voter_id, position_id)` plus transaction-based ballot submission prevents duplicate votes for a position.
 - Candidate image MIME validation and a 2 MB upload limit.
 - Audit records for logins, registrations, election changes, voter verification and ballot submissions.
@@ -49,7 +55,7 @@ There is no hard-coded universal administrator password. The first admin account
 
 ## Database / configuration
 
-The schema is in `database/schema.sql`. Tables: `users`, `elections`, `positions`, `candidates`, `votes`, and `audit_logs`. Database connection settings are centralized in `config/config.php`. Candidate uploads are stored under `storage/uploads/`.
+The schema is in `database/schema.sql`. Tables: `users`, `elections`, `positions`, `candidates`, `votes`, and `audit_logs`. Candidate applications record their applicant, decision, reviewer, review time, and optional note in the `candidates` table. Database connection settings are centralized in `config/config.php`. Candidate uploads are stored under `storage/uploads/`.
 
 ## Important operational notes
 
