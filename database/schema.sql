@@ -20,6 +20,11 @@ CREATE TABLE IF NOT EXISTS positions (
 CREATE TABLE IF NOT EXISTS candidates (
  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, position_id BIGINT UNSIGNED NOT NULL, full_name VARCHAR(140) NOT NULL,
  department VARCHAR(120) NULL, manifesto TEXT NULL, photo VARCHAR(255) NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ application_user_id BIGINT UNSIGNED NULL, approval_status ENUM('pending','approved','declined') NOT NULL DEFAULT 'approved',
+ reviewed_by BIGINT UNSIGNED NULL, reviewed_at DATETIME NULL, review_note VARCHAR(500) NULL,
+ INDEX idx_candidate_review(position_id,approval_status), INDEX idx_candidate_applicant(application_user_id),
+ CONSTRAINT fk_candidate_applicant FOREIGN KEY(application_user_id) REFERENCES users(id) ON DELETE SET NULL,
+ CONSTRAINT fk_candidate_reviewer FOREIGN KEY(reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
  CONSTRAINT fk_candidate_position FOREIGN KEY(position_id) REFERENCES positions(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 CREATE TABLE IF NOT EXISTS votes (
